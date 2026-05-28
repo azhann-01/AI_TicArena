@@ -44,7 +44,7 @@ public class WaitingRoomFrame extends JFrame {
                     new LobbyFrame(username);
                     dispose();
                 });
-        
+
         mainPanel.add(Box.createVerticalGlue());
         mainPanel.add(title);
         mainPanel.add(Box.createVerticalStrut(10));
@@ -56,8 +56,19 @@ public class WaitingRoomFrame extends JFrame {
         mainPanel.add(Box.createVerticalGlue());
 
         add(mainPanel);
-        
+
         setVisible(true);
+
+        Timer timer = new Timer(
+                3000,
+                e -> {
+                    new GameFrame(username);
+                    dispose();
+                });
+
+        timer.setRepeats(false);
+
+        timer.start();
     }
 
 }
