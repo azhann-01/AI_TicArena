@@ -7,207 +7,261 @@ public class GameFrame extends JFrame {
 
     JButton[][] board;
 
+    JButton restartButton;
+    JButton lobbyButton;
+
+    JLabel turnLabel;
+
     boolean xTurn = true;
     boolean gameOver = false;
 
-    public GameFrame(String username){
+    public GameFrame(String username) {
 
         setTitle("TicArena - Game");
-        setSize(600,600);
+        setSize(650, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel boardPanel = new JPanel();
+        JPanel mainPanel = new JPanel(new BorderLayout());
 
-        boardPanel.setLayout(
-                new GridLayout(5,5,5,5)
-        );
+        //top panel
+
+        JPanel topPanel = new JPanel();
+        topPanel.setBackground(new Color(44, 62, 80));
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+
+        JLabel titleLabel = new JLabel("TICARENA");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        turnLabel = new JLabel("Current Turn : X");
+        turnLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        turnLabel.setForeground(Color.WHITE);
+        turnLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        topPanel.add(Box.createVerticalStrut(10));
+        topPanel.add(titleLabel);
+        topPanel.add(Box.createVerticalStrut(10));
+        topPanel.add(turnLabel);
+        topPanel.add(Box.createVerticalStrut(10));
+
+        //board panel
+
+        JPanel boardPanel = new JPanel();
+        boardPanel.setLayout(new GridLayout(5, 5, 5, 5));
+        boardPanel.setBackground(new Color(44, 62, 80));
 
         board = new JButton[5][5];
 
         Font buttonFont = new Font("Arial", Font.BOLD, 30);
 
-        for(int i=0; i<5; i++){
-            for(int j=0; j<5; j++){
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
                 board[i][j] = new JButton();
                 board[i][j].setFont(buttonFont);
+                board[i][j].setBackground(new Color(236, 240, 241));
+                board[i][j].setForeground(new Color(44, 62, 80));
+                board[i][j].setFocusPainted(false);
+                board[i][j].setBorder(BorderFactory.createLineBorder(new Color(52, 73, 94),2));
 
                 int row = i;
                 int col = j;
 
                 board[i][j].addActionListener(
                     e -> {
-                        if(gameOver)
+                        if (gameOver)
                             return;
-
-                        if(xTurn){
+                        if (xTurn) {
                             board[row][col].setText("X");
-                        }
-
-                        else{
+                        } else {
                             board[row][col].setText("O");
                         }
                         board[row][col].setEnabled(false);
 
                         xTurn = !xTurn;
 
-                        checkWinner();
+                        if (xTurn) {
+                            turnLabel.setText("Current Turn : X");
+                        } else {
+                            turnLabel.setText("Current Turn : O");
                         }
-                );
+                        checkWinner();
+                        });
 
                 boardPanel.add(board[i][j]);
             }
         }
 
-        add(boardPanel);
+        //button panel
+
+        JPanel buttonPanel = new JPanel();
+        
+        restartButton = new JButton("Restart Game");
+        restartButton.setBackground(new Color(52, 152, 219));
+        restartButton.setForeground(Color.WHITE);
+        restartButton.setFocusPainted(false);
+        restartButton.setFont(new Font("Arial", Font.BOLD, 16));
+        restartButton.addActionListener(
+            e -> {
+                dispose();
+                new GameFrame(username);
+            });
+
+        
+        lobbyButton = new JButton("Back To Lobby");
+        lobbyButton.setBackground(new Color(46, 204, 113));
+        lobbyButton.setForeground(Color.WHITE);
+        lobbyButton.setFocusPainted(false);
+        lobbyButton.setFont(new Font("Arial", Font.BOLD, 16));
+        lobbyButton.addActionListener(
+            e-> {
+                new LobbyFrame(username);
+                dispose();
+            });
+
+        buttonPanel.add(restartButton);
+        buttonPanel.add(lobbyButton);
+
+        //main Layout
+
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        mainPanel.add(boardPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(mainPanel);
 
         setVisible(true);
     }
 
-    public void checkWinner(){
+    public void checkWinner() {
 
-        // check rows
+        // Rows
 
-        for(int i=0; i<5; i++){
+        for (int i = 0; i < 5; i++) {
+
             String first = board[i][0].getText();
 
-            if(first.equals(""))
+            if (first.equals(""))
                 continue;
 
             boolean same = true;
 
-            for(int j=1; j<5; j++){
-                if(!board[i][j].getText().equals(first)){
+            for (int j = 1; j < 5; j++) {
+
+                if (!board[i][j].getText().equals(first)) {
+
                     same = false;
                     break;
                 }
             }
 
-            if(same){
+            if (same) {
                 gameOver = true;
-                JOptionPane.showMessageDialog(null, first + " Wins!");
-
+                JOptionPane.showMessageDialog(this, first + " Wins!");
                 disableBoard();
-
                 return;
             }
         }
 
-        // check columns
+        // Columns
 
-        for(int j=0; j<5; j++){
+        for (int j = 0; j < 5; j++) {
+
             String first = board[0][j].getText();
 
-            if(first.equals(""))
+            if (first.equals(""))
                 continue;
 
             boolean same = true;
 
-            for(int i=1; i<5; i++){
-
-                if(!board[i][j].getText().equals(first)){
-                    same = false;
+            for (int i = 1; i < 5; i++) {
+                if (!board[i][j].getText().equals(first)) {
+                    same = false;                   
                     break;
                 }
             }
 
-            if(same){
-
-                gameOver = true;
-
-                JOptionPane.showMessageDialog(null, first + " Wins!");
-
-                disableBoard();
-
-                return;
+            if (same) {
+            gameOver = true;
+            JOptionPane.showMessageDialog(this, first + " Wins!");
+            disableBoard();
+            return;
             }
         }
 
-        // check main diagonal
+        // Main Diagonal
 
         String first = board[0][0].getText();
 
-        if(!first.equals("")){
+        if (!first.equals("")) {
 
             boolean same = true;
 
-            for(int i=1; i<5; i++){
-
-                if(!board[i][i].getText().equals(first)){
-                    same = false;
-                    break;
+            for (int i = 1; i < 5; i++) {
+                if (!board[i][i].getText().equals(first)) {
+                same = false;               
+                break;
                 }
             }
 
-            if(same){
-
+            if (same) {
                 gameOver = true;
-
-                JOptionPane.showMessageDialog(null, first + " Wins!");
+                JOptionPane.showMessageDialog(this, first + " Wins!");
                 disableBoard();
                 return;
             }
         }
 
-        // check opposite diagonal
+        // Opposite Diagonal
 
         first = board[0][4].getText();
 
-        if(!first.equals("")){
+        if (!first.equals("")) {
 
             boolean same = true;
 
-            for(int i=1; i<5; i++){
-
-                if(!board[i][4-i].getText().equals(first)){
+            for (int i = 1; i < 5; i++) {
+                if (!board[i][4 - i].getText().equals(first)) {
                     same = false;
                     break;
                 }
             }
 
-            if(same){
-
+            if (same) {
                 gameOver = true;
-
-                JOptionPane.showMessageDialog(null, first + " Wins!");
-
+                JOptionPane.showMessageDialog(this, first + " Wins!");
                 disableBoard();
-
                 return;
             }
         }
 
-        // draw condition
+        // Draw
 
         boolean boardFull = true;
 
-        for(int i=0; i<5; i++){
-
-            for(int j=0; j<5; j++){
-
-                if(board[i][j].getText().equals("")){
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (board[i][j].getText().equals("")) {
                     boardFull = false;
                     break;
                 }
             }
         }
 
-        if(boardFull){
-
+        if (boardFull) {
             gameOver = true;
-
-            JOptionPane.showMessageDialog(null,"Game Over!");
+            JOptionPane.showMessageDialog(this, "Game Over! It's a Draw.");
 
             disableBoard();
         }
     }
 
-    public void disableBoard(){
+    public void disableBoard() {
 
-        for(int i=0; i<5; i++){
-            for(int j=0; j<5; j++){
-
-            board[i][j].setEnabled(false);
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                board[i][j].setEnabled(false);
             }
         }
     }
